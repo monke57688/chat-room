@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat Room</title>
+</head>
+<body>
+  <h2>Join Chat Room</h2>
+  <input id="name" placeholder="Name" />
+  <input id="phone" placeholder="Phone number" />
+  <input id="room" placeholder="Room name" />
+  <button onclick="joinRoom()">Join</button>
+  <hr />
+  <div id="chat" style="height: 200px; overflow-y: scroll;"></div>
+  <input id="message" placeholder="Type message" />
+  <button onclick="sendMessage()">Send</button>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    let phoneNumber = "";
+
+    function joinRoom() {
+      const name = document.getElementById("name").value;
+      phoneNumber = document.getElementById("phone").value;
+      const room = document.getElementById("room").value;
+      socket.emit("joinRoom", { name, phoneNumber, room });
+    }
+
+    function sendMessage() {
+      const message = document.getElementById("message").value;
+      socket.emit("chatMessage", { phoneNumber, message });
+      document.getElementById("message").value = "";
+    }
+
+    socket.on("message", (data) => {
+      const chat = document.getElementById("chat");
+      const msg = document.createElement("div");
+      msg.textContent = `${data.sender}: ${data.text}`;
+      chat.appendChild(msg);
+      chat.scrollTop = chat.scrollHeight;
+    });
+  </script>
+</body>
+</html>
